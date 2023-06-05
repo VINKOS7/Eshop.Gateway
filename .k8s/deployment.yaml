@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: hr-vision
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      namespace: hr-vision
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: cr.yandex/crp5tcknmirem7af3edu/gateway/api:latest
+        env:
+        - name: Authority__Url
+          value: "https://passport.hr.vision/"
+        - name: Seq_Url
+          value: "http://seq.logging.svc.cluster.local:5341"
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: regcred 

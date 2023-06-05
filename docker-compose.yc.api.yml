@@ -1,0 +1,5 @@
+version: "3.5"
+
+services:
+  api-gateway:
+    image: cr.yandex/crp5tcknmirem7af3edu/gateway/api:${VERSION_TAG}

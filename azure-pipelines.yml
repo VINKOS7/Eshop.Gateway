@@ -1,0 +1,33 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  VERSION_TAG: '1.0.0.$(Build.BuildNumber)'
+
+steps:
+- script: docker login -u oauth -p y0_AgAEA7qil1heAATuwQAAAADgW8pUAQ9YYysqQwiBms4Wr7JZLSHSgSM cr.yandex
+  displayName: 'Login to yandex docker registry'
+- script: docker-compose -f docker-compose.yc.api.yml -f docker-compose.api.build.yml build
+  displayName: 'Build application image'
+- script: docker-compose -f docker-compose.yc.api.yml -f docker-compose.api.build.yml push
+  displayName: 'Push application image'
+
+- task: Bash@3
+  displayName: 'Write version'
+  inputs:
+    targetType: 'inline'
+    script: |
+      touch $(System.DefaultWorkingDirectory)/.k8s/version
+      echo '$(VERSION_TAG)' > $(System.DefaultWorkingDirectory)/.k8s/version
+
+- publish: $(System.DefaultWorkingDirectory)/.k8s
+  artifact: manifest
